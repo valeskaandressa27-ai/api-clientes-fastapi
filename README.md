@@ -1,5 +1,6 @@
 # Customer Management Dashboard
-
+🚀 Aplicação online:
+https://api-clientes-fastapi-1.onrender.com
 Sistema full-stack de gestão de clientes: back-end **FastAPI + PostgreSQL**
 e front-end **Vue 3 + TypeScript**, publicados como **uma única aplicação**
 (o FastAPI serve tanto a API REST quanto os arquivos estáticos do Vue).
