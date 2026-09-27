@@ -1,10 +1,17 @@
-"""Aplicação FastAPI — API de Gerenciamento de Clientes."""
+"""Aplicação FastAPI — Customer Management Dashboard.
+
+Serve a API REST de clientes (sob /api) e, em produção, os arquivos
+estáticos compilados do front-end Vue (frontend/dist), permitindo que
+uma única aplicação seja publicada como um único Web Service.
+"""
 
 import logging
+from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import get_settings
 from app.core.exceptions import (
@@ -12,15 +19,18 @@ from app.core.exceptions import (
     CpfDuplicadoError,
     EmailDuplicadoError,
 )
-from app.routes import clientes, health
+from app.routes import clientes, dashboard, health
 
-logger = logging.getLogger("api_clientes")
+logger = logging.getLogger("customer_management_dashboard")
 
 settings = get_settings()
 
 app = FastAPI(
-    title="API de Gerenciamento de Clientes",
-    description="API REST para cadastro, consulta, atualização e exclusão de clientes.",
+    title="Customer Management Dashboard API",
+    description=(
+        "API REST para o Customer Management Dashboard: cadastro, consulta, "
+        "atualização, exclusão e métricas de clientes."
+    ),
     version="1.0.0",
 )
 
@@ -61,3 +71,28 @@ async def erro_inesperado_handler(request: Request, exc: Exception) -> JSONRespo
 
 app.include_router(health.router)
 app.include_router(clientes.router)
+app.include_router(dashboard.router)
+
+
+# --- Front-end (Vue) servido pela própria aplicação em produção ---------
+
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+
+if FRONTEND_DIST.is_dir():
+    assets_dir = FRONTEND_DIST / "assets"
+    if assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
+
+    @app.get("/{caminho_completo:path}", include_in_schema=False)
+    async def servir_frontend(caminho_completo: str) -> FileResponse:
+        """Serve o SPA Vue para qualquer rota que não seja da API.
+
+        Rotas de API (/api/*), documentação (/docs, /redoc, /openapi.json)
+        e health check (/health) são tratadas pelos routers acima e nunca
+        chegam a esta rota-catch-all, pois o FastAPI resolve rotas mais
+        específicas primeiro.
+        """
+        arquivo_estatico = FRONTEND_DIST / caminho_completo
+        if caminho_completo and arquivo_estatico.is_file():
+            return FileResponse(arquivo_estatico)
+        return FileResponse(FRONTEND_DIST / "index.html")

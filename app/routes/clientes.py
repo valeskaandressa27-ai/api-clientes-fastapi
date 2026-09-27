@@ -13,7 +13,7 @@ from app.schemas.cliente import (
 )
 from app.services.cliente import ClienteService
 
-router = APIRouter(prefix="/clientes", tags=["Clientes"])
+router = APIRouter(prefix="/api/clientes", tags=["Clientes"])
 
 
 @router.post(
