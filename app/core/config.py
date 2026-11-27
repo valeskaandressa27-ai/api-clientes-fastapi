@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/clientes"
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
     environment: str = "development"
+    admin_username: str = ""
+    admin_password: str = ""
+    auth_secret: str = ""
 
     @property
     def cors_origins_list(self) -> list[str]:
@@ -21,6 +24,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.environment.lower() == "production"
+
+    @property
+    def auth_is_configured(self) -> bool:
+        return all((self.admin_username, self.admin_password, self.auth_secret))
 
 
 @lru_cache
