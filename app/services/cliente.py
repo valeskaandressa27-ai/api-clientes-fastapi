@@ -18,9 +18,9 @@ class ClienteService:
 
     def criar_cliente(self, dados: ClienteCreate) -> Cliente:
         if self.repo.buscar_por_email(dados.email):
-            raise EmailDuplicadoError(f"já existe um cliente com o e-mail '{dados.email}'")
+            raise EmailDuplicadoError("já existe um cliente com este e-mail")
         if self.repo.buscar_por_cpf(dados.cpf):
-            raise CpfDuplicadoError(f"já existe um cliente com o CPF '{dados.cpf}'")
+            raise CpfDuplicadoError("já existe um cliente com este CPF")
         return self.repo.criar(dados)
 
     def obter_cliente(self, cliente_id: int) -> Cliente:
@@ -43,11 +43,11 @@ class ClienteService:
 
         email_existente = self.repo.buscar_por_email(dados.email, excluir_id=cliente_id)
         if email_existente:
-            raise EmailDuplicadoError(f"já existe um cliente com o e-mail '{dados.email}'")
+            raise EmailDuplicadoError("já existe um cliente com este e-mail")
 
         cpf_existente = self.repo.buscar_por_cpf(dados.cpf, excluir_id=cliente_id)
         if cpf_existente:
-            raise CpfDuplicadoError(f"já existe um cliente com o CPF '{dados.cpf}'")
+            raise CpfDuplicadoError("já existe um cliente com este CPF")
 
         return self.repo.atualizar(cliente, dados)
 
