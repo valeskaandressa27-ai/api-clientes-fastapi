@@ -1,6 +1,6 @@
 """Camada de acesso a dados (repository) para Cliente."""
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.cliente import Cliente
@@ -40,16 +40,19 @@ class ClienteRepository:
         nome: str | None = None,
         email: str | None = None,
     ) -> tuple[list[Cliente], int]:
-        stmt = select(Cliente)
+        filtros = []
         if nome:
-            stmt = stmt.where(Cliente.nome.ilike(f"%{nome}%"))
+            filtros.append(Cliente.nome.ilike(f"%{nome}%"))
         if email:
-            stmt = stmt.where(Cliente.email.ilike(f"%{email}%"))
+            filtros.append(Cliente.email.ilike(f"%{email}%"))
 
-        total = len(self.db.execute(stmt).scalars().all())
+        total_stmt = select(func.count()).select_from(Cliente).where(*filtros)
+        total = self.db.execute(total_stmt).scalar_one()
 
         stmt = (
-            stmt.order_by(Cliente.id)
+            select(Cliente)
+            .where(*filtros)
+            .order_by(Cliente.id)
             .offset((pagina - 1) * tamanho_pagina)
             .limit(tamanho_pagina)
         )
