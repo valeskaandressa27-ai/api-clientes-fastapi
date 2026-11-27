@@ -127,7 +127,7 @@ página do Vue, enquanto `/api/clientes` é o endpoint da API). Veja mais em
 
 Códigos de status preservados: `201` (criação), `200` (sucesso), `204`
 (exclusão), `404` (não encontrado), `409` (e-mail/CPF duplicado), `422`
-(dados inválidos), `500` (erro inesperado, sem detalhes internos expostos).
+(dados inválidos), `401` (não autenticado), `503` (credenciais de autenticação ainda não configuradas) e `500` (erro inesperado, sem detalhes internos expostos).
 
 ## Rodando localmente
 
