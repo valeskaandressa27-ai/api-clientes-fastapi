@@ -263,6 +263,9 @@ Um único Web Service, sem Vercel e sem repositórios separados:
 
 - Nenhuma credencial no código-fonte; `.env` (back-end) e `frontend/.env`
   (front-end) estão no `.gitignore`.
+- **Atenção:** esta versão não implementa autenticação/autorização. A aplicação
+  publicada é uma demonstração técnica; não cadastre dados pessoais reais nem
+  utilize o sistema como cadastro operacional até adicionar controle de acesso.
 - Toda entrada é validada via Pydantic (back-end) e revalidada no front-end
   apenas para UX — o back-end é sempre a autoridade final.
 - Mensagens de erro não expõem detalhes internos (stack traces, queries).
