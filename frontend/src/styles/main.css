@@ -746,3 +746,58 @@ table.tabela tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ---------- Autenticação ---------- */
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at top left, #fff7ed 0, transparent 38%), var(--cor-fundo);
+}
+.login-card {
+  width: 100%;
+  max-width: 430px;
+  padding: 34px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 14px;
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-elevada);
+}
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 34px;
+}
+.login-brand__icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--cor-acento);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.login-brand h1 { font-size: 15px; }
+.login-brand p, .login-heading p {
+  margin-top: 4px;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+.login-heading { margin-bottom: 24px; }
+.login-heading h2 { font-size: 22px; }
+.login-submit { width: 100%; margin-top: 4px; }
+.login-footnote {
+  margin-top: 22px;
+  color: var(--cor-texto-suave);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+@media (max-width: 480px) {
+  .login-card { padding: 26px 20px; }
+}
