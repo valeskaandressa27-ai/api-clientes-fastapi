@@ -1,5 +1,7 @@
 # Customer Management Dashboard
 
+![CI](https://github.com/valeskaandressa27-ai/api-clientes-fastapi/actions/workflows/ci.yml/badge.svg)
+
 🚀 Aplicação online: [https://api-clientes-fastapi-1.onrender.com](https://api-clientes-fastapi-1.onrender.com)
 
 📚 Swagger: [Documentação da API](https://api-clientes-fastapi-1.onrender.com/docs)
