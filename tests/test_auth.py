@@ -14,10 +14,16 @@ def test_login_com_credenciais_invalidas(unauthenticated_client):
     assert "cm_admin_session" not in resposta.cookies
 
 
-def test_login_valido_cria_cookie_http_only(client):
-    cookie = client.cookies.get("cm_admin_session")
-    assert cookie
-    assert client.get("/api/auth/me").json() == {"authenticated": True}
+def test_login_valido_emite_cookie_http_only(unauthenticated_client):
+    resposta = unauthenticated_client.post(
+        "/api/auth/login",
+        json={"username": "test-admin", "password": "test-password-for-ci-only"},
+    )
+    assert resposta.status_code == 200
+    set_cookie = resposta.headers["set-cookie"].lower()
+    assert "httponly" in set_cookie
+    assert "samesite=strict" in set_cookie
+    assert unauthenticated_client.get("/api/auth/me").json() == {"authenticated": True}
 
 
 def test_logout_invalida_cookie(client):
