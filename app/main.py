@@ -62,7 +62,14 @@ async def cpf_duplicado_handler(request: Request, exc: CpfDuplicadoError) -> JSO
 
 @app.exception_handler(Exception)
 async def erro_inesperado_handler(request: Request, exc: Exception) -> JSONResponse:
-    logger.exception("Erro inesperado ao processar %s %s", request.method, request.url)
+    # Não registrar URL completa, payload, mensagem da exceção ou traceback:
+    # falhas de banco podem incluir DSNs e dados de clientes nesses detalhes.
+    logger.error(
+        "Erro inesperado: method=%s path=%s exception_type=%s",
+        request.method,
+        request.url.path,
+        type(exc).__name__,
+    )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "erro interno do servidor"},
