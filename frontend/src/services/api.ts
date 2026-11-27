@@ -15,7 +15,8 @@ async function request<T>(caminho: string, init?: RequestInit): Promise<T> {
   let resposta: Response;
   try {
     resposta = await fetch(`${BASE_URL}${caminho}`, {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...init?.headers },
+      credentials: "same-origin",
       ...init,
     });
   } catch {
@@ -43,6 +44,23 @@ export interface ListarClientesParametros {
 }
 
 export const api = {
+  auth: {
+    async login(username: string, password: string): Promise<void> {
+      await request<{ message: string }>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+    },
+
+    async me(): Promise<void> {
+      await request<{ authenticated: boolean }>("/auth/me");
+    },
+
+    async logout(): Promise<void> {
+      await request<{ message: string }>("/auth/logout", { method: "POST" });
+    },
+  },
+
   clientes: {
     listar(parametros: ListarClientesParametros = {}): Promise<ClienteListResponse> {
       const query = new URLSearchParams();
