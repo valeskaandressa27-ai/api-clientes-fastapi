@@ -119,6 +119,7 @@ def test_email_duplicado(client, cliente_payload):
     resposta = client.post("/api/clientes", json=segundo_payload)
 
     assert resposta.status_code == 409
+    assert cliente_payload["email"] not in resposta.json()["detail"]
 
 
 def test_cpf_duplicado(client, cliente_payload):
@@ -128,6 +129,7 @@ def test_cpf_duplicado(client, cliente_payload):
     resposta = client.post("/api/clientes", json=segundo_payload)
 
     assert resposta.status_code == 409
+    assert cliente_payload["cpf"] not in resposta.json()["detail"]
 
 
 def test_health_check(client):
