@@ -118,6 +118,9 @@ página do Vue, enquanto `/api/clientes` é o endpoint da API). Veja mais em
 | PUT    | /api/clientes/{id}         | Atualizar cliente                   |
 | DELETE | /api/clientes/{id}         | Excluir cliente                     |
 | GET    | /api/dashboard/resumo      | Métricas agregadas para o dashboard |
+| POST   | /api/auth/login             | Iniciar sessão administrativa       |
+| GET    | /api/auth/me                | Verificar sessão ativa              |
+| POST   | /api/auth/logout            | Encerrar sessão                     |
 | GET    | /health                    | Verificar API                       |
 | GET    | /docs                       | Swagger UI                          |
 | GET    | /redoc                      | ReDoc                               |
@@ -181,6 +184,9 @@ partir de `frontend/dist`.
 | `DATABASE_URL` | String de conexão do PostgreSQL                      |
 | `CORS_ORIGINS` | Origens extras permitidas (útil em dev, opcional em produção same-origin) |
 | `ENVIRONMENT`  | `development` ou `production`                        |
+| `ADMIN_USERNAME` | Usuário administrativo definido pelo responsável pelo deploy |
+| `ADMIN_PASSWORD` | Senha administrativa forte e exclusiva; configurar como secret |
+| `AUTH_SECRET` | Segredo aleatório longo para assinar sessões; configurar como secret |
 
 **Front-end** (`frontend/.env`, veja `frontend/.env.example`)
 
@@ -207,9 +213,8 @@ export DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:5432/clien
 pytest -v
 ```
 
-16 testes cobrindo: CRUD de clientes (válido/inválido, paginação, busca,
-404, duplicidade de e-mail/CPF) e as métricas do dashboard (com e sem
-clientes cadastrados).
+Testes cobrindo: CRUD de clientes, validação, paginação, busca, duplicidade,
+dashboard, login válido/inválido, bloqueio sem sessão, logout e health check público.
 
 ## Docker
 
@@ -261,19 +266,23 @@ Um único Web Service, sem Vercel e sem repositórios separados:
 
 ## Segurança
 
-- Nenhuma credencial no código-fonte; `.env` (back-end) e `frontend/.env`
-  (front-end) estão no `.gitignore`.
-- **Atenção:** esta versão não implementa autenticação/autorização. A aplicação
-  publicada é uma demonstração técnica; não cadastre dados pessoais reais nem
-  utilize o sistema como cadastro operacional até adicionar controle de acesso.
-- Toda entrada é validada via Pydantic (back-end) e revalidada no front-end
-  apenas para UX — o back-end é sempre a autoridade final.
-- Mensagens de erro não expõem detalhes internos (stack traces, queries).
-- CORS restrito às origens definidas em `CORS_ORIGINS`; em produção,
-  front-end e API compartilham a mesma origem, então CORS entre eles nem
-  entra em jogo.
-- Autenticação/JWT continua fora do escopo desta versão, como no back-end
-  original.
+- A área administrativa e os endpoints de clientes/dashboard exigem sessão autenticada.
+- O login valida `ADMIN_USERNAME` e `ADMIN_PASSWORD` no servidor; as credenciais
+  nunca são enviadas ao bundle JavaScript nem armazenadas no navegador.
+- A sessão usa cookie assinado, `HttpOnly`, `SameSite=Strict`, validade de 8 horas
+  e atributo `Secure` em produção (HTTPS).
+- `AUTH_SECRET` deve ser um segredo aleatório longo e exclusivo, armazenado como
+  variável secreta no Render. Nunca reutilize uma chave de exemplo.
+- Se qualquer uma das três variáveis de autenticação estiver ausente, a API
+  administrativa responde com `503` (fail closed); não existe fallback de senha.
+- `/health` permanece público para monitoramento e não retorna dados de clientes.
+- CORS deve permanecer limitado às origens necessárias. Em produção, front-end e
+  API são same-origin.
+- Toda entrada é validada pelo Pydantic no back-end; mensagens de erro não expõem
+  stack traces, queries ou detalhes internos.
+- A autenticação é de administrador único, adequada para uma demonstração/portfólio
+  protegida; não substitui controle de acesso multiusuário, MFA, auditoria ou
+  política corporativa para dados sensíveis.
 
 ## Decisões técnicas
 
