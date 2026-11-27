@@ -6,6 +6,9 @@ os.environ.setdefault(
     "DATABASE_URL",
     "postgresql+psycopg://postgres:postgres@localhost:5432/clientes_test",
 )
+os.environ.setdefault("ADMIN_USERNAME", "test-admin")
+os.environ.setdefault("ADMIN_PASSWORD", "test-password-for-ci-only")
+os.environ.setdefault("AUTH_SECRET", "test-signing-secret-for-ci-only")
 
 import pytest
 from fastapi.testclient import TestClient
@@ -49,8 +52,19 @@ def client():
 
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as test_client:
+        resposta = test_client.post(
+            "/api/auth/login",
+            json={"username": os.environ["ADMIN_USERNAME"], "password": os.environ["ADMIN_PASSWORD"]},
+        )
+        assert resposta.status_code == 200
         yield test_client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def unauthenticated_client():
+    with TestClient(app) as test_client:
+        yield test_client
 
 
 @pytest.fixture
