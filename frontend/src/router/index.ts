@@ -1,8 +1,15 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { api } from "@/services/api";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    {
+      path: "/login",
+      name: "login",
+      component: () => import("@/views/LoginView.vue"),
+      meta: { titulo: "Entrar", public: true },
+    },
     {
       path: "/",
       name: "dashboard",
@@ -42,6 +49,16 @@ const router = createRouter({
       meta: { titulo: "Página não encontrada" },
     },
   ],
+});
+
+router.beforeEach(async (to) => {
+  if (to.meta.public) return true;
+  try {
+    await api.auth.me();
+    return true;
+  } catch {
+    return { name: "login", query: { redirect: to.fullPath } };
+  }
 });
 
 router.afterEach((to) => {
